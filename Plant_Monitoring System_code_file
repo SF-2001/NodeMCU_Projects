@@ -1,0 +1,72 @@
+#include<ESP8266WiFi.h>
+const char* ssid = "Sf";
+const char* password = "39001237";
+dht sensor;
+
+
+#define dht_sensor A0
+
+
+WiFiServer server(80);
+int flag;
+
+void setup()  {
+  // put your setup code here, to run once:
+  Serial.begin(115200);
+pinMode(dht_sensor,INPUT);
+
+  Serial.println();
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(",");
+  }
+  Serial.println("");
+  Serial.println("WiFi Connected");
+  server.begin();
+  Serial.println("Server started");
+  Serial.print("Use this URL to connect:");
+  Serial.print(WiFi.localIP());
+  Serial.println("/");
+
+
+
+
+}
+
+
+
+
+void loop() {
+   
+  sensor.read11(dht_sensor);
+  float temp = sensor.temperature;
+  float humidity = sensor.humidity ;
+  WiFiClient client = server.available();
+  if (!client) {
+    return;
+  }
+  Serial.println("new client");
+  while (!client.available()) {
+    delay(1);
+  }
+  client.println("HTTP/1.1 200 OK");
+  client.println("Content-Type: text/html");
+  client.println("");
+  //client.println("<!DOCTYPE HTML>");
+  //client.println("<html>");
+  client.println(temp);
+  client.println(humidity);
+  delay(1);
+
+
+  
+
+
+ 
+}
